@@ -4,7 +4,7 @@ import Dashboard from './components/Dashboard'; // Importa o componente de Dashb
 
 function App() {
   return (
-    <div className="App">
+    <div>
       <Dashboard /> {/* Renderiza o painel do administrador */}
     </div>
   );

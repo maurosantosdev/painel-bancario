@@ -42,84 +42,86 @@ const Dashboard = () => {
   }, [accessToken]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">Painel Bancário</h1>
+    <div className="painel">
+  <div className="flex justify-center items-center mb-4">
+    <img 
+      src="https://icabank.com.br/static/media/Logo.6e249b4f.svg" 
+      alt="Logo ICABank" 
+      className="w-48 h-48 mr-4" 
+    />
+    <h1 className="painel-titulo text-3xl font-bold">Painel Bancário</h1>
+  </div>
 
-      {/* Login Form */}
-      {!accessToken ? (
-        <div className="mt-4">
-          <h2 className="text-xl">Login de Administrador</h2>
-          <input
-            type="text"
-            placeholder="Client ID"
-            className="border p-2 mt-2"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Client Secret"
-            className="border p-2 mt-2"
-            value={clientSecret}
-            onChange={(e) => setClientSecret(e.target.value)}
-          />
-          <button
-            className="bg-blue-500 text-white p-2 mt-2"
-            onClick={handleLogin}
-          >
-            Login
-          </button>
-        </div>
-      ) : (
-        // After login, show account creation and account list
-        <div className="mt-4">
-          <h2 className="text-xl">Criar Nova Conta</h2>
-          <div className="mt-2">
-            <select
-              value={accountType}
-              onChange={(e) => setAccountType(e.target.value)}
-              className="border p-2"
-            >
-              <option value="PERSONAL">Pessoal</option>
-              <option value="BUSINESS">Empresarial</option>
-            </select>
-          </div>
-          <input
-            type="text"
-            placeholder="Nome do Titular"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border p-2 mt-2"
-          />
-          <input
-            type="text"
-            placeholder="Número do Documento"
-            value={document}
-            onChange={(e) => setDocument(e.target.value)}
-            className="border p-2 mt-2"
-          />
-          <button
-            className="bg-blue-500 text-white p-2 mt-2"
-            onClick={handleCreateAccount}
-          >
-            Criar Conta
-          </button>
-
-          <h2 className="text-xl mt-4">Contas Bancárias</h2>
-          <ul>
-            {accounts.length > 0 ? (
-              accounts.map((account) => (
-                <li key={account.id} className="mt-2">
-                  <strong>{account.name}</strong> - {account.accountType}
-                </li>
-              ))
-            ) : (
-              <p>Nenhuma conta encontrada.</p>
-            )}
-          </ul>
-        </div>
-      )}
+  {/* Login Form */}
+  {!accessToken ? (
+    <div className="formulario">
+      <div>
+        <input
+          type="text"
+          placeholder="Client ID"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          className="w-full p-2 pl-10 text-sm text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 input-radius"
+        />
+        <input
+          type="password"
+          placeholder="Client Secret"
+          value={clientSecret}
+          onChange={(e) => setClientSecret(e.target.value)}
+          className="w-full p-2 pl-10 text-sm text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4 input-radius"
+        />
+      </div>
+      <button className="botao bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg mt-4" onClick={handleLogin}>
+        Login
+      </button>
     </div>
+  ) : (
+    // After login, show account creation and account list
+    <div className="formulario">
+      <div className="form-container">
+        <h2>Criar Nova Conta</h2>
+        <select
+          value={accountType}
+          onChange={(e) => setAccountType(e.target.value)}
+          className="border p-2 input-radius"
+        >
+          <option value="PERSONAL">Pessoal</option>
+          <option value="BUSINESS">Empresarial</option>
+        </select>
+        <input
+          type="text"
+          placeholder="Nome do Titular"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border p-2 mt-4 input-radius"
+        />
+        <input
+          type="text"
+          placeholder="Número do Documento"
+          value={document}
+          onChange={(e) => setDocument(e.target.value)}
+          className="border p-2 mt-4 input-radius"
+        />
+      </div>
+      <button className="botao bg-green-500 text-white p-2 mt-4" onClick={handleCreateAccount}>
+        Criar Conta
+      </button>
+
+      <h2>Contas Bancárias</h2>
+      <ul>
+        {accounts.length > 0 ? (
+          accounts.map((account) => (
+            <li key={account.id}>
+              <strong>{account.name}</strong> - {account.accountType}
+            </li>
+          ))
+        ) : (
+          <p className="alerta-erro">Nenhuma conta encontrada.</p>
+        )}
+      </ul>
+    </div>
+  )}
+</div>
   );
 };
 
