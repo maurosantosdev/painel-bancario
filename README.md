@@ -1,139 +1,507 @@
-# Teste de Desenvolvedor de Painel Bancário
+# Passo 1: Criando o Projeto React
 
-#@ NOVO! - Documentação da API
+```bash
+npx create-react-app painel-bancario
+```
 
-https://mock-ica.aquarela.win/api
+# Passo 2: Estrutura Inicial do Projeto
 
-Visão geral
-Bem-vindo ao nosso teste de desenvolvedor! Este projeto tem como objetivo avaliar suas habilidades na criação de um dashboard bancário com acesso de administrador. Você trabalhará com uma API simulada de Banking as a Service (BaaS) localizada em https://mock-ica.aquarela.win/ .
+Instalando as bibliotecas necessárias para o estilo e componentes do painel bancário:
 
-Objetivo
-Sua tarefa é criar um painel bancário que permita aos administradores:
+```bash
+npm install -D tailwindcss postcss autoprefixer 
+npx tailwindcss init
+```
 
-Visualizar e criar contas bancárias
-Ver extratos de conta
-Veja um resumo das contas abertas
-Visualizar o saldo total de todas as contas (simulando o valor total no banco de dados)
-Além disso, como um recurso bônus, você pode criar uma interface de usuário para que os titulares de contas:
+## Dentro do arquivo tailwind.config.js, adicionarei a configuração básica para o React.
 
-Entre na conta bancária deles
-Realizar operações financeiras
-Ver o extrato e o saldo da conta
-Critérios de avaliação
-Avaliaremos sua solução com base em:
+```bash
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{html,js,jsx,ts,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+##  Dentro arquivo chamado index.css e adicione o seguinte código para importar o Tailwind CSS:
 
-Segurança
-Usabilidade
-Desempenho
-Escalabilidade
-Se você for um desenvolvedor full-stack, avaliaremos suas implementações de backend e frontend. Se você for especialista em uma área, daremos mais ênfase à sua expertise.
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
 
-A consideração cuidadosa do cache e das medidas de segurança é crucial para componentes de front-end e back-end.
+## Dentro do arquivo src/index.js adicionei o import.
 
-Pilha de tecnologia
-Front-end
-React (com Next.js, Remix ou similar)
-Esbelto
-Bibliotecas recomendadas:
+No arquivo ```bash src/index.js```, importe o CSS
 
-Tailwind CSS para estilo
-shadcn para componentes de IU
-Framer Motion para animações
-Back-end
-Pitão
-TypeScript (Node.js, Bun ou Deno)
-Estrutura recomendada:
+# Passo 3: Instalando o shadcn (UI Components)
 
-NinhoJS
-Banco de dados
-Sua escolha, incluindo opções gratuitas como Supabase
+```bash
+npm install @shadcn/ui
+```
 
-Documentação da API
-A API BaaS simulada está disponível em https://mock-ica.aquarela.win/ . Aqui está uma visão geral dos endpoints disponíveis e seu uso:
+# Passo 4: Configuração de Animações com Framer Motion
 
-Notas importantes
-Você deve criar um locatário antes de acessar outras rotas.
-O segredo do JWT é:758603a3-cb1c-4d3f-b4b4-aa8975236894
-A chave pix é:pix@mock.icabank.com.br
-Autenticação
-Criar inquilino
-PUBLICAR /tenant
-Cabeçalhos :X-Mock: true
-Resposta : Retorna detalhes do inquilino, incluindo clientIdeclientSecret
-Conecte-se
-PUBLICAR /auth/login
-Corpo :
-{
-  "clientId": "your_client_id",
-  "clientSecret": "your_client_secret"
+```bash
+npm install framer-motion
+```
+
+# Passo 5: Estrutura do Projeto.
+
+```css
+src/
+  components/
+    Dashboard.js
+    AccountList.js
+    AccountDetails.js
+    TransactionHistory.js
+  pages/
+    AdminDashboard.js
+  App.js
+  ```
+
+## Criando o dashboard simples:
+
+```bash
+// src/components/Dashboard.js
+import React from 'react';
+
+const Dashboard = () => {
+  return (
+    <div className="p-4">
+      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
+      <div className="mt-4">
+        <h2 className="text-xl">Resumo das Contas</h2>
+        <p>Resumo das contas abertas e saldo total.</p>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+# Passo 6: Conectar à API de Simulação BaaS
+
+Agora, vou integrar a API de simulação BaaS. A primeira coisa é configurar o login e obter o access_token, que será necessário para fazer as requisições.
+
+Instalando o Axios para facilitar a requisição HTTP:
+
+```bash
+npm install axios
+```
+
+## Agora irei configurar a requisição de autenticação: 
+## Irei criar a função para se autenticar e obter o token de acesso.
+
+```bash
+// src/utils/api.js
+import axios from 'axios';
+
+const API_URL = 'https://mock-ica.aquarela.win';
+
+export const login = async (clientId, clientSecret) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      {
+        clientId,
+        clientSecret,
+      },
+      { headers: { 'X-Mock': 'true' } }
+    );
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Erro ao autenticar:', error);
+    return null;
+  }
+};
+```
+
+## Vamos alterar o Dashboard para permitir login e mostrar o token de acesso.
+
+```bash
+// src/components/Dashboard.js
+import React, { useState } from 'react';
+import { login } from '../utils/api';
+
+const Dashboard = () => {
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [accessToken, setAccessToken] = useState(null);
+
+  const handleLogin = async () => {
+    const token = await login(clientId, clientSecret);
+    setAccessToken(token);
+  };
+
+  return (
+    <div className="p-4">
+      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
+      {!accessToken ? (
+        <div className="mt-4">
+          <h2 className="text-xl">Login de Administrador</h2>
+          <input
+            type="text"
+            placeholder="Client ID"
+            className="border p-2 mt-2"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Client Secret"
+            className="border p-2 mt-2"
+            value={clientSecret}
+            onChange={(e) => setClientSecret(e.target.value)}
+          />
+          <button
+            className="bg-blue-500 text-white p-2 mt-2"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <h2 className="text-xl">Token de Acesso</h2>
+          <p>{accessToken}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+# Passo 7: Rotas
+
+### Instalando React Router
+
+```bash
+npm install react-router-dom
+```
+
+### Agora irei configurar o Roteamento no App.js
+
+```bash
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  );
 }
 
-Resposta : Retorna umaccess_token
-Gerenciamento de contas
-Todas as rotas de gerenciamento de contas exigem o seguinte cabeçalho:
+export default App;
+```
 
-Authorization: Bearer your_access_token
-Criar uma conta
-PUBLICAR /account
-Corpo :
-{
-  "accountType": "PERSONAL" | "BUSINESS",
-  "name": "Account Holder Name",
-  "document": "Document Number"
+# Agora irei implementar as funcionalidades de visualização e criação de contas bancárias.
+
+### 1. Visualização de Contas Bancárias: Consultar a API para listar as contas bancárias existentes.
+### 2. Criação de Contas Bancárias: Enviar uma solicitação para criar uma nova conta bancária, com o tipo (pessoal ou empresarial), nome do titular e número do documento.
+
+### Primeiro, vou criar uma função para listar as contas bancárias usando a API. Para isso, irei adicionar uma nova função na nossa api.js para buscar as contas.
+
+## Criando a função de listagem de Contas
+
+```bash
+// src/utils/api.js
+import axios from 'axios';
+
+const API_URL = 'https://mock-ica.aquarela.win';
+
+export const login = async (clientId, clientSecret) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      { clientId, clientSecret },
+      { headers: { 'X-Mock': 'true' } }
+    );
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Erro ao autenticar:', error);
+    return null;
+  }
+};
+
+export const fetchAccounts = async (accessToken) => {
+  try {
+    const response = await axios.get(`${API_URL}/account`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar contas:', error);
+    return [];
+  }
+};
+```
+## Exibindo as contas no Dashboard.
+
+```bash
+// src/components/Dashboard.js
+import React, { useState, useEffect } from 'react';
+import { login, fetchAccounts } from '../utils/api';
+
+const Dashboard = () => {
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [accessToken, setAccessToken] = useState(null);
+  const [accounts, setAccounts] = useState([]);
+
+  const handleLogin = async () => {
+    const token = await login(clientId, clientSecret);
+    setAccessToken(token);
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      const getAccounts = async () => {
+        const data = await fetchAccounts(accessToken);
+        setAccounts(data);
+      };
+      getAccounts();
+    }
+  }, [accessToken]);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
+
+      {!accessToken ? (
+        <div className="mt-4">
+          <h2 className="text-xl">Login de Administrador</h2>
+          <input
+            type="text"
+            placeholder="Client ID"
+            className="border p-2 mt-2"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Client Secret"
+            className="border p-2 mt-2"
+            value={clientSecret}
+            onChange={(e) => setClientSecret(e.target.value)}
+          />
+          <button
+            className="bg-blue-500 text-white p-2 mt-2"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <h2 className="text-xl">Contas Bancárias</h2>
+          <ul>
+            {accounts.length > 0 ? (
+              accounts.map((account) => (
+                <li key={account.id} className="mt-2">
+                  <strong>{account.name}</strong> - {account.accountType}
+                </li>
+              ))
+            ) : (
+              <p>Nenhuma conta encontrada.</p>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+## Agora a criação das Contas.
+
+## Agora, irei adicionar a funcionalidade para criar novas contas bancárias. Vou criar um formulário onde o usuário possa inserir o tipo de conta, nome do titular e documento.
+
+Função.
+
+```bash
+export const createAccount = async (accessToken, accountData) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/account`,
+      accountData,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar conta:', error);
+    return null;
+  }
+};
+```
+
+## De novo no Dashboard, agora vou adicionar o formulário para criação da conta.
+
+```bash
+// src/components/Dashboard.js
+import React, { useState, useEffect } from 'react';
+import { login, fetchAccounts, createAccount } from '../utils/api';
+
+const Dashboard = () => {
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [accessToken, setAccessToken] = useState(null);
+  const [accounts, setAccounts] = useState([]);
+  const [accountType, setAccountType] = useState('PERSONAL');
+  const [name, setName] = useState('');
+  const [document, setDocument] = useState('');
+
+  const handleLogin = async () => {
+    const token = await login(clientId, clientSecret);
+    if (token) {
+      setAccessToken(token);
+    } else {
+      alert('Erro ao fazer login!');
+    }
+  };
+
+  const handleCreateAccount = async () => {
+    const newAccount = { accountType, name, document };
+    const account = await createAccount(accessToken, newAccount);
+    if (account) {
+      alert('Conta criada com sucesso!');
+      setAccounts([...accounts, account]);
+    } else {
+      alert('Erro ao criar conta.');
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      const getAccounts = async () => {
+        const data = await fetchAccounts(accessToken);
+        setAccounts(data);
+      };
+      getAccounts();
+    }
+  }, [accessToken]);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
+
+      {/* Login Form */}
+      {!accessToken ? (
+        <div className="mt-4">
+          <h2 className="text-xl">Login de Administrador</h2>
+          <input
+            type="text"
+            placeholder="Client ID"
+            className="border p-2 mt-2"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Client Secret"
+            className="border p-2 mt-2"
+            value={clientSecret}
+            onChange={(e) => setClientSecret(e.target.value)}
+          />
+          <button
+            className="bg-blue-500 text-white p-2 mt-2"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      ) : (
+        // After login, show account creation and account list
+        <div className="mt-4">
+          <h2 className="text-xl">Criar Nova Conta</h2>
+          <div className="mt-2">
+            <select
+              value={accountType}
+              onChange={(e) => setAccountType(e.target.value)}
+              className="border p-2"
+            >
+              <option value="PERSONAL">Pessoal</option>
+              <option value="BUSINESS">Empresarial</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            placeholder="Nome do Titular"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border p-2 mt-2"
+          />
+          <input
+            type="text"
+            placeholder="Número do Documento"
+            value={document}
+            onChange={(e) => setDocument(e.target.value)}
+            className="border p-2 mt-2"
+          />
+          <button
+            className="bg-blue-500 text-white p-2 mt-2"
+            onClick={handleCreateAccount}
+          >
+            Criar Conta
+          </button>
+
+          <h2 className="text-xl mt-4">Contas Bancárias</h2>
+          <ul>
+            {accounts.length > 0 ? (
+              accounts.map((account) => (
+                <li key={account.id} className="mt-2">
+                  <strong>{account.name}</strong> - {account.accountType}
+                </li>
+              ))
+            ) : (
+              <p>Nenhuma conta encontrada.</p>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+# Estrutura final do App.js
+
+```bash
+// src/App.js
+import React from 'react';
+import Dashboard from './components/Dashboard'; // Importa o componente de Dashboard
+
+function App() {
+  return (
+    <div className="App">
+      <Dashboard /> {/* Renderiza o painel do administrador */}
+    </div>
+  );
 }
 
-Obter detalhes da conta
-PEGAR /account/:id
-Obter conta por documento
-PEGAR /account/document/:document
-Obter extrato de conta
-PEGAR /account/:id/statement
-Transações
-Todas as rotas de transação exigem os seguintes cabeçalhos:
-
-Authorization: Bearer your_access_token
-X-Payer-Id: payer_document_number
-Transferência TED
-PUBLICAR /transaction/ted
-Corpo :
-
-{
-  "accountId": "source_account_id",
-  "amount": 500,
-  "recipientName": "Recipient Name",
-  "recipientDocument": "Recipient Document",
-  "recipientBank": "Bank Code",
-  "recipientBranch": "Branch Number",
-  "recipientAccount": "Account Number"
-}
-
-PIX Encontrar Chave
-PEGAR /transaction/pix/:pixKey
-Transferência PIX
-PUBLICAR /transaction/pix/:accountId/pay
-Corpo :
-
-{
-  "amount": 200,
-  "pixKey": "pix@example.com",
-  "description": "its my description"
-  "e2eId": "end_to_end_id"
-}
-
-Pagar boleto
-PUBLICAR /transaction/billet
-Corpo :
-{
-  "accountId": "source_account_id",
-  "amount": 150,
-  "billetCode": "billet_code",
-  "dueDate": "YYYY-MM-DD"
-}
-Transferência interna
-PUBLICAR /transaction/internal
-Corpo :
-{
-  "amount": 100,
-  "sourceAccountId": "source_account_id",
-  "targetAccountId": "target_account_id"
-}
+export default App;
+```
