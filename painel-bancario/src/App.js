@@ -1,13 +1,23 @@
-// src/App.js
-import React from 'react';
-import Dashboard from './components/Dashboard'; // Importa o componente de Dashboard
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import Statement from "./components/Statement";
+import Transaction from "./components/Transaction";
+import CreateAccountAdmin from "./components/CreateAccountAdmin";
 
-function App() {
+const App = () => {
   return (
-    <div>
-      <Dashboard /> {/* Renderiza o painel do administrador */}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<CreateAccountAdmin />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/statement" element={<Statement />} />
+        <Route path="/transaction" element={<Transaction />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

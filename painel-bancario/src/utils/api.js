@@ -18,6 +18,20 @@ export const login = async (clientId, clientSecret) => {
     }
   };
 
+// export const fetchAccounts = async (accessToken) => {
+//   try {
+//     const response = await axios.get('https://mock-ica.aquarela.win/account', {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//     });
+//     return response.data; // Retorna a lista de contas
+//   } catch (error) {
+//     console.error('Erro ao buscar contas:', error);
+//     return [];
+//   }
+// };
+
 export const fetchAccounts = async (accessToken) => {
   try {
     const response = await axios.get(`${API_URL}/account`, {
