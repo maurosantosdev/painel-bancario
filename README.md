@@ -1,10 +1,10 @@
-# Passo 1: Criando o Projeto React
+## Passo 1: Criando o Projeto React
 
 ```bash
 npx create-react-app painel-bancario
 ```
 
-# Passo 2: Estrutura Inicial do Projeto
+## Passo 2: Estrutura Inicial do Projeto
 
 Instalando as bibliotecas necessárias para o estilo e componentes do painel bancário:
 
@@ -39,19 +39,19 @@ module.exports = {
 
 No arquivo ```bash src/index.js```, importe o CSS
 
-# Passo 3: Instalando o shadcn (UI Components)
+## Passo 3: Instalando o shadcn (UI Components)
 
 ```bash
 npm install @shadcn/ui
 ```
 
-# Passo 4: Configuração de Animações com Framer Motion
+## Passo 4: Configuração de Animações com Framer Motion
 
 ```bash
 npm install framer-motion
 ```
 
-# Passo 5: Estrutura do Projeto.
+## Passo 5: Estrutura do Projeto.
 
 ```css
 src/
@@ -86,7 +86,7 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
-# Passo 6: Conectar à API de Simulação BaaS
+## Passo 6: Conectar à API de Simulação BaaS
 
 Agora, vou integrar a API de simulação BaaS. A primeira coisa é configurar o login e obter o access_token, que será necessário para fazer as requisições.
 
@@ -180,15 +180,15 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
-# Passo 7: Rotas
+## Passo 7: Rotas
 
-### Instalando React Router
+## Instalando React Router
 
 ```bash
 npm install react-router-dom
 ```
 
-### Agora irei configurar o Roteamento no App.js
+## Agora irei configurar o Roteamento no App.js
 
 ```bash
 // src/App.js
@@ -209,12 +209,12 @@ function App() {
 export default App;
 ```
 
-# Agora irei implementar as funcionalidades de visualização e criação de contas bancárias.
+## Agora irei implementar as funcionalidades de visualização e criação de contas bancárias.
 
-### 1. Visualização de Contas Bancárias: Consultar a API para listar as contas bancárias existentes.
-### 2. Criação de Contas Bancárias: Enviar uma solicitação para criar uma nova conta bancária, com o tipo (pessoal ou empresarial), nome do titular e número do documento.
+## 1. Visualização de Contas Bancárias: Consultar a API para listar as contas bancárias existentes.
+## 2. Criação de Contas Bancárias: Enviar uma solicitação para criar uma nova conta bancária, com o tipo (pessoal ou empresarial), nome do titular e número do documento.
 
-### Primeiro, vou criar uma função para listar as contas bancárias usando a API. Para isso, irei adicionar uma nova função na nossa api.js para buscar as contas.
+## Primeiro, vou criar uma função para listar as contas bancárias usando a API. Para isso, irei adicionar uma nova função na nossa api.js para buscar as contas.
 
 ## Criando a função de listagem de Contas
 
@@ -488,7 +488,7 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
-# Estrutura final do App.js
+## Estrutura final do App.js
 
 ```bash
 // src/App.js
@@ -518,7 +518,7 @@ sourceAccountId: "6a2a53f7-4002-4ec3-9d03-c06e322ca5b1",
 ### Para visualizar o Extrato.
 
 Vá em: /components/Statement.js
-Na linha 9, adicione o mesmo Id da conta do titular.
+Na linha 9, adicione o mesmo ID da conta do titular.
 
 ```bash
 const response = await fetch("https://mock-ica.aquarela.win/account/6a2a53f7-4002-4ec3-9d03-c06e322ca5b1/statement"
@@ -529,3 +529,27 @@ const response = await fetch("https://mock-ica.aquarela.win/account/6a2a53f7-400
 painel-bancario/public
 - Pasta: Print Dashboard
 - Pasta: Print Postman
+
+
+### Links
+
+#### Painel Bancário
+- http://localhost:3000/
+
+#### Login
+- http://localhost:3000/login
+
+#### Dashboard
+- http://localhost:3000/dashboard
+
+#### Extrato
+- http://localhost:3000/statement
+
+#### Transferência
+- http://localhost:3000/transaction
+
+#### Resumo das contas abertas
+- http://localhost:3000/account-summary
+
+#### Saldo total de todas as contas
+- http://localhost:3000/total-balance
