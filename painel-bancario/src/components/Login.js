@@ -29,6 +29,11 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <img 
+      src="https://icabank.com.br/static/media/Logo.6e249b4f.svg" 
+      alt="Logo ICABank" 
+      className="w-48 h-48 mr-4" 
+    />
       <h1 className="text-2xl font-bold mb-4">Login na Conta</h1>
       <input
         type="text"

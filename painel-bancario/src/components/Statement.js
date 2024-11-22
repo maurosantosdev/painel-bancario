@@ -6,7 +6,7 @@ const Statement = () => {
   useEffect(() => {
     const fetchStatement = async () => {
       const token = localStorage.getItem("accessToken");
-      const response = await fetch("https://mock-ica.aquarela.win/account/1811cc80-ebbb-40ec-a0e0-40e6b3cf1255/statement", {
+      const response = await fetch("https://mock-ica.aquarela.win/account/6a2a53f7-4002-4ec3-9d03-c06e322ca5b1/statement", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
