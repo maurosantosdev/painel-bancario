@@ -42,37 +42,60 @@ const CreateAccountAdmin = () => {
 
   const handleCreateAccount = async () => {
     const newAccount = { accountType, name, document };
-
+  
     // Criação da conta na API
     const account = await createAccount(accessToken, newAccount);
     if (account) {
-      alert('Conta criada com sucesso!');
-      setAccounts([...accounts, account]);
-
       try {
-        // Salvar os detalhes no Supabase na tabela "news_account"
-        const { error } = await supabase
+        // Verificar se a conta já existe no Supabase
+        const { data: existingAccounts, error: selectError } = await supabase
+          .from('news_account') // Nome da tabela no Supabase
+          .select('account_id, document')
+          .or(`account_id.eq.${account.id},document.eq.${account.document}`);
+  
+        if (selectError) {
+          console.error('Erro ao verificar se a conta já existe:', selectError.message);
+          alert('Erro ao verificar os detalhes no banco de dados.');
+          return;
+        }
+  
+        if (existingAccounts && existingAccounts.length > 0) {
+          alert('Conta já existente!');
+          return;
+        }
+  
+        // Inserir a nova conta no Supabase
+        const { error: insertError } = await supabase
           .from('news_account') // Nome da tabela no Supabase
           .insert({
-            account_id: account.id,        // ID da conta
-            name: account.name,            // Nome da conta
-            account_type: account.accountType, // Tipo da conta
             client_id: clientId,           // ID do cliente que criou a conta
+            balance: account.balance,      // Money
+            branch: account.branch,
+            document: account.document,
+            account_id: account.id,        // ID da conta
+            name: account.name,
+            number: account.number,
+            status: account.status,
+            tenantId: account.tenantId,    // ID
+            account_type: account.accountType, // Tipo da conta
+            updatedAt: account.updatedAt,
           });
-
-        if (error) {
-          console.error('Erro ao salvar na tabela news_account:', error.message);
+  
+        if (insertError) {
+          console.error('Erro ao salvar na tabela news_account:', insertError.message);
           alert('Erro ao salvar os detalhes no banco de dados.');
         } else {
-          console.log('Conta salva com sucesso na tabela news_account.');
+          alert('Conta salva com sucesso na tabela news_account.');
+          setAccounts([...accounts, account]); // Atualiza a lista local de contas
         }
       } catch (error) {
-        console.error('Erro inesperado ao salvar na tabela news_account:', error);
+        console.error('Erro inesperado ao salvar/verificar na tabela news_account:', error);
       }
     } else {
       alert('Erro ao criar conta.');
     }
   };
+  
 
   useEffect(() => {
     if (accessToken) {
