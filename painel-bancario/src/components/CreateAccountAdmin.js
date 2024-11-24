@@ -41,6 +41,12 @@ const CreateAccountAdmin = () => {
   };
 
   const handleCreateAccount = async () => {
+    // Verificar se todos os campos estão preenchidos
+    if (!accountType || !name || !document) {
+      alert('Por favor, preencha todos os campos corretamente.');
+      return;
+    }
+  
     const newAccount = { accountType, name, document };
   
     // Criação da conta na API
@@ -95,6 +101,7 @@ const CreateAccountAdmin = () => {
       alert('Erro ao criar conta.');
     }
   };
+  
   
 
   useEffect(() => {
