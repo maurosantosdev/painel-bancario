@@ -13,11 +13,16 @@ const CreateAccountAdmin = () => {
   const [document, setDocument] = useState('');
 
   // Salvar dados no Supabase
-  const saveToSupabase = async (clientId, clientSecret, accessToken) => {
+  const saveToSupabase = async (clientId, clientSecret, accessToken, expiresAt) => {
     try {
       const { data, error } = await supabase
         .from('authentication') // Nome da tabela no Supabase
-        .insert([{ client_id: clientId, client_secret: clientSecret, access_token: accessToken }]);
+        .insert([{ 
+          client_id: clientId, 
+          client_secret: clientSecret, 
+          access_token: accessToken,
+          expiresAt: expiresAt
+         }]);
 
       if (error) {
         console.error('Erro ao salvar no Supabase:', error.message);
@@ -26,6 +31,47 @@ const CreateAccountAdmin = () => {
       }
     } catch (error) {
       console.error('Erro inesperado ao salvar no Supabase:', error);
+    }
+  };
+
+  // Função para verificar se o usuário está registrado na tabela de autenticação
+  const checkAuthentication = async () => {
+    try {
+      // Verifica se o cliente está registrado na tabela authentication
+      const { data, error } = await supabase
+        .from('authentication')
+        .select('*')
+        .eq('client_id', clientId)
+        .eq('client_secret', clientSecret);
+
+      if (error || !data || data.length === 0) {
+        // Limpar dados de autenticação
+        setAccessToken(null);
+        setClientId(''); // Limpar o clientId
+        setClientSecret(''); // Limpar o clientSecret
+        alert('Você não está autenticado! O registro foi removido ou está inválido.');
+
+        // Limpar o cache
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Recarregar a página para limpar qualquer dado em cache
+        window.location.reload();
+      } else {
+        console.log('Usuário autenticado com sucesso!');
+      }
+    } catch (error) {
+      console.error('Erro ao verificar a autenticação:', error);
+      setAccessToken(null); // Limpa o token de acesso caso ocorra algum erro
+      setClientId(''); // Limpar o clientId
+      setClientSecret(''); // Limpar o clientSecret
+
+      // Limpar o cache
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Recarregar a página para limpar qualquer dado em cache
+      window.location.reload();
     }
   };
 
@@ -101,8 +147,6 @@ const CreateAccountAdmin = () => {
       alert('Erro ao criar conta.');
     }
   };
-  
-  
 
   useEffect(() => {
     if (accessToken) {
@@ -111,6 +155,14 @@ const CreateAccountAdmin = () => {
         setAccounts(data);
       };
       getAccounts();
+
+      // Verificar a autenticação a cada 10 segundos
+      const intervalId = setInterval(() => {
+        checkAuthentication();
+      }, 10000); // 10 segundos
+
+      // Limpar o intervalo quando o componente for desmontado ou o accessToken for removido
+      return () => clearInterval(intervalId);
     }
   }, [accessToken]);
 
