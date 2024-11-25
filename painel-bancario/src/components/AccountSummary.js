@@ -1,36 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { supabase } from '../utils/supabaseClient'; // Certifique-se de que o Supabase esteja configurado corretamente
 
 const AccountSummary = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função para buscar as contas
+  // Função para buscar as contas do banco de dados
   const fetchAccounts = async () => {
     const token = localStorage.getItem("accessToken");
 
-    try {
-      const response = await fetch("https://mock-ica.aquarela.win/account", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    if (!token) {
+      setError("Token de autenticação não encontrado!");
+      setLoading(false);
+      return;
+    }
 
-      if (response.ok) {
-        const data = await response.json();
-        setAccounts(data || []);
-        setLoading(false);
-      } else {
-        throw new Error("Erro ao buscar contas");
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("news_account") // Supondo que a tabela de contas seja "news_account"
+        .select("account_id, account_type, balance");
+
+      if (fetchError) {
+        throw new Error("Erro ao buscar contas: " + fetchError.message);
       }
+
+      setAccounts(data || []);
+      setLoading(false);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
 
-  // Função para calcular o saldo total das contas
+  // Função para calcular o saldo total de todas as contas
   const calculateTotalBalance = () => {
     return accounts.reduce((total, account) => total + account.balance, 0);
   };
@@ -39,8 +42,8 @@ const AccountSummary = () => {
   const countAccountTypes = () => {
     return accounts.reduce(
       (counts, account) => {
-        if (account.accountType === "PERSONAL") counts.personal += 1;
-        if (account.accountType === "BUSINESS") counts.business += 1;
+        if (account.account_type === "PERSONAL") counts.personal += 1;
+        if (account.account_type === "BUSINESS") counts.business += 1;
         return counts;
       },
       { personal: 0, business: 0 }
