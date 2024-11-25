@@ -506,24 +506,6 @@ function App() {
 export default App;
 ```
 
-### Para realizar a transação.
-
-Vá em: /components/Transaction.js
-Na linha 18, substitua pelo ID da conta do titular.
-
-```bash
-sourceAccountId: "6a2a53f7-4002-4ec3-9d03-c06e322ca5b1",
-```
-
-### Para visualizar o Extrato.
-
-Vá em: /components/Statement.js
-Na linha 9, adicione o mesmo ID da conta do titular.
-
-```bash
-const response = await fetch("https://mock-ica.aquarela.win/account/6a2a53f7-4002-4ec3-9d03-c06e322ca5b1/statement"
-```
-
 ### E para visualizar os prints vá em;
 
 painel-bancario/public
