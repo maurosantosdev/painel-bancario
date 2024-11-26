@@ -21,7 +21,7 @@ const Statement = () => {
         const { data: accounts, error: accountsError } = await supabase
           .from("news_account")
           .select("account_id, name, account_type, created_at, branch, document, number, status, balance")
-          .eq("client_id", "487ac19f-9516-4d1b-b6c8-598d9ef9d954");
+          .eq("client_id", "0978823a-f377-4c49-a3c9-dc27dc18e5a7");
 
         if (accountsError) {
           setError("Erro ao buscar contas no banco de dados: " + accountsError.message);

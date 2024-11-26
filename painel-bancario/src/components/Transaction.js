@@ -10,7 +10,7 @@ const Transaction = () => {
   useEffect(() => {
     // Função para buscar as contas do clientId específico
     const fetchAccounts = async () => {
-      const clientId = "487ac19f-9516-4d1b-b6c8-598d9ef9d954"; // Client ID fixo, pode ser dinâmico dependendo da lógica de autenticação
+      const clientId = "0978823a-f377-4c49-a3c9-dc27dc18e5a7"; // Client ID fixo, pode ser dinâmico dependendo da lógica de autenticação
 
       try {
         // Buscar as contas associadas ao clientId
@@ -93,8 +93,23 @@ const Transaction = () => {
 
         if (updateSourceError || updateRecipientError) {
           console.error("Erro ao atualizar saldos:", updateSourceError?.message || updateRecipientError?.message);
+          return;
+        }
+
+        // 4. Registrar a transferência na tabela transaction_register
+        const { error: transactionError } = await supabase
+          .from("transaction_register")
+          .insert({
+            source_account_id: sourceAccountId,
+            target_account_id: recipient,
+            amount: parseFloat(amount),
+            created_at: new Date().toISOString(), // Data e hora da transação
+          });
+
+        if (transactionError) {
+          console.error("Erro ao registrar a transferência:", transactionError.message);
         } else {
-          console.log("Saldos atualizados com sucesso!");
+          console.log("Transferência registrada com sucesso!");
         }
       } else {
         const error = await response.json();
