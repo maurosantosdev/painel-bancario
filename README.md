@@ -123,61 +123,64 @@ export const login = async (clientId, clientSecret) => {
 };
 ```
 
-## Vamos alterar o Dashboard para permitir login e mostrar o token de acesso.
+## Vamos alterar o Dashboard para permitir login e mostrar o token de acesso e foi adicionado a biblioteca js-cookie.
 
 ```bash
-// src/components/Dashboard.js
-import React, { useState } from 'react';
-import { login } from '../utils/api';
+import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";  // Importar a biblioteca js-cookie
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const [accessToken, setAccessToken] = useState(null);
 
-  const handleLogin = async () => {
-    const token = await login(clientId, clientSecret);
-    setAccessToken(token);
-  };
+  const [clientId, setClientId] = useState(null);
+
+  useEffect(() => {
+    // Lê o clientId do cookie
+    const storedClientId = Cookies.get("clientId");
+    if (storedClientId) {
+      setClientId(storedClientId);
+    } else {
+      console.error("Client ID não encontrado no cookie.");
+    }
+  }, []);
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
-      {!accessToken ? (
-        <div className="mt-4">
-          <h2 className="text-xl">Login de Administrador</h2>
-          <input
-            type="text"
-            placeholder="Client ID"
-            className="border p-2 mt-2"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Client Secret"
-            className="border p-2 mt-2"
-            value={clientSecret}
-            onChange={(e) => setClientSecret(e.target.value)}
-          />
-          <button
-            className="bg-blue-500 text-white p-2 mt-2"
-            onClick={handleLogin}
-          >
-            Login
-          </button>
-        </div>
-      ) : (
-        <div className="mt-4">
-          <h2 className="text-xl">Token de Acesso</h2>
-          <p>{accessToken}</p>
-        </div>
-      )}
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1 className="text-3xl font-bold mb-6">Bem-vindo ao Painel</h1>
+      <br></br>
+        <br></br>
+      <div className="space-y-4">
+        <Link
+          to="/statement"
+          className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Ver Extrato
+        </Link>
+        <Link
+          to="/transaction"
+          className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Realizar Transferência
+        </Link>
+        <Link
+          to="/account-summary"
+          className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Resumo das Contas Abertas
+        </Link>
+        <Link
+          to="/total-balance"
+          className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Saldo Total de Todas as Contas
+        </Link>
+      </div>
     </div>
   );
 };
 
 export default Dashboard;
+
 ```
 
 ## Passo 7: Rotas
@@ -284,85 +287,6 @@ export const createAccount = async (accessToken, accountData) => {
       return null;
     }
   };
-
-```
-## Exibindo as contas no Dashboard.
-
-```bash
-// src/components/Dashboard.js
-import React, { useState, useEffect } from 'react';
-import { login, fetchAccounts } from '../utils/api';
-
-const Dashboard = () => {
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const [accessToken, setAccessToken] = useState(null);
-  const [accounts, setAccounts] = useState([]);
-
-  const handleLogin = async () => {
-    const token = await login(clientId, clientSecret);
-    setAccessToken(token);
-  };
-
-  useEffect(() => {
-    if (accessToken) {
-      const getAccounts = async () => {
-        const data = await fetchAccounts(accessToken);
-        setAccounts(data);
-      };
-      getAccounts();
-    }
-  }, [accessToken]);
-
-  return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">Painel Bancário - Administrador</h1>
-
-      {!accessToken ? (
-        <div className="mt-4">
-          <h2 className="text-xl">Login de Administrador</h2>
-          <input
-            type="text"
-            placeholder="Client ID"
-            className="border p-2 mt-2"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Client Secret"
-            className="border p-2 mt-2"
-            value={clientSecret}
-            onChange={(e) => setClientSecret(e.target.value)}
-          />
-          <button
-            className="bg-blue-500 text-white p-2 mt-2"
-            onClick={handleLogin}
-          >
-            Login
-          </button>
-        </div>
-      ) : (
-        <div className="mt-4">
-          <h2 className="text-xl">Contas Bancárias</h2>
-          <ul>
-            {accounts.length > 0 ? (
-              accounts.map((account) => (
-                <li key={account.id} className="mt-2">
-                  <strong>{account.name}</strong> - {account.accountType}
-                </li>
-              ))
-            ) : (
-              <p>Nenhuma conta encontrada.</p>
-            )}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Dashboard;
 ```
 
 ## Agora a criação das Contas.
@@ -663,11 +587,12 @@ const CreateAccountAdmin = () => {
 export default CreateAccountAdmin;
 ```
 
-## Login.js
+## Login.js.
 
 ```bash
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";  // Importar a biblioteca js-cookie
 
 const Login = () => {
   const [clientId, setClientId] = useState("");
@@ -686,6 +611,7 @@ const Login = () => {
 
       if (response.ok) {
         localStorage.setItem("accessToken", data.access_token);
+        Cookies.set("clientId", clientId, { expires: 7 }); // Armazena o clientId no cookie por 7 dias
         navigate("/dashboard");
       } else {
         alert("Erro no login: " + data.message);
@@ -698,10 +624,10 @@ const Login = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <img 
-      src="https://icabank.com.br/static/media/Logo.6e249b4f.svg" 
-      alt="Logo ICABank" 
-      className="w-48 h-48 mr-4" 
-    />
+        src="https://icabank.com.br/static/media/Logo.6e249b4f.svg" 
+        alt="Logo ICABank" 
+        className="w-48 h-48 mr-4" 
+      />
       <h1 className="text-2xl font-bold mb-4">Login na Conta</h1>
       <input
         type="text"
@@ -735,6 +661,7 @@ export default Login;
 ```bash
 import React, { useState, useEffect } from "react";
 import { supabase } from '../utils/supabaseClient'; // Certifique-se de ter o supabaseClient configurado
+import Cookies from "js-cookie"; // Importar a biblioteca js-cookie
 
 const Transaction = () => {
   const [amount, setAmount] = useState(""); // Valor da transferência
@@ -745,7 +672,12 @@ const Transaction = () => {
   useEffect(() => {
     // Função para buscar as contas do clientId específico
     const fetchAccounts = async () => {
-      const clientId = "487ac19f-9516-4d1b-b6c8-598d9ef9d954"; // Client ID fixo, pode ser dinâmico dependendo da lógica de autenticação
+      const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
+
+      if (!clientId) {
+        console.error("Client ID não encontrado no cookie!");
+        return;
+      }
 
       try {
         // Buscar as contas associadas ao clientId
@@ -828,8 +760,23 @@ const Transaction = () => {
 
         if (updateSourceError || updateRecipientError) {
           console.error("Erro ao atualizar saldos:", updateSourceError?.message || updateRecipientError?.message);
+          return;
+        }
+
+        // 4. Registrar a transferência na tabela transaction_register
+        const { error: transactionError } = await supabase
+          .from("transaction_register")
+          .insert({
+            source_account_id: sourceAccountId,
+            target_account_id: recipient,
+            amount: parseFloat(amount),
+            created_at: new Date().toISOString(), // Data e hora da transação
+          });
+
+        if (transactionError) {
+          console.error("Erro ao registrar a transferência:", transactionError.message);
         } else {
-          console.log("Saldos atualizados com sucesso!");
+          console.log("Transferência registrada com sucesso!");
         }
       } else {
         const error = await response.json();
@@ -987,6 +934,7 @@ export default AccountSummary;
 ```bash
 import React, { useEffect, useState } from "react";
 import { supabase } from '../utils/supabaseClient'; // Certifique-se de que você tem o Supabase configurado corretamente
+import Cookies from "js-cookie"; // Importar a biblioteca js-cookie
 
 const Statement = () => {
   const [statements, setStatements] = useState([]); // Para armazenar extratos de todas as contas
@@ -996,9 +944,10 @@ const Statement = () => {
   useEffect(() => {
     const fetchStatements = async () => {
       const token = localStorage.getItem("accessToken");
+      const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
 
-      if (!token) {
-        setError("Token de autenticação não encontrado!");
+      if (!token || !clientId) {
+        setError("Token de autenticação ou clientId não encontrado!");
         setLoading(false);
         return;
       }
@@ -1008,7 +957,7 @@ const Statement = () => {
         const { data: accounts, error: accountsError } = await supabase
           .from("news_account")
           .select("account_id, name, account_type, created_at, branch, document, number, status, balance")
-          .eq("client_id", "487ac19f-9516-4d1b-b6c8-598d9ef9d954");
+          .eq("client_id", clientId); // Utiliza o clientId do cookie
 
         if (accountsError) {
           setError("Erro ao buscar contas no banco de dados: " + accountsError.message);
@@ -1141,31 +1090,37 @@ export default Statement;
 
 ```bash
 import React, { useEffect, useState } from "react";
+import { supabase } from '../utils/supabaseClient'; // Importando o cliente Supabase
+import Cookies from "js-cookie"; // Importando o Cookies para pegar o clientId
 
 const TotalBalance = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função para buscar as contas
+  // Função para buscar as contas do banco de dados
   const fetchAccounts = async () => {
-    const token = localStorage.getItem("accessToken");
+    const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
+
+    if (!clientId) {
+      setError("Client ID não encontrado no cookie!");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const response = await fetch("https://mock-ica.aquarela.win/account", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Buscar as contas associadas ao clientId
+      const { data, error } = await supabase
+        .from("news_account") // Substitua pela tabela correta
+        .select("account_id, balance") // Seleciona o saldo de cada conta
+        .eq("client_id", clientId); // Filtra pelo clientId
 
-      if (response.ok) {
-        const data = await response.json();
-        setAccounts(data || []);
-        setLoading(false);
-      } else {
-        throw new Error("Erro ao buscar contas");
+      if (error) {
+        throw new Error(error.message);
       }
+
+      setAccounts(data || []);
+      setLoading(false);
     } catch (error) {
       setError(error.message);
       setLoading(false);
