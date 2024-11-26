@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";  // Importar a biblioteca js-cookie
-import { Link } from "react-router-dom";
+import Cookies from "js-cookie"; // Importar a biblioteca js-cookie
+import { Link, useNavigate } from "react-router-dom"; // useNavigate para navegação programática
 
 const Dashboard = () => {
-
   const [clientId, setClientId] = useState(null);
+  const navigate = useNavigate(); // Hook para navegação
 
   useEffect(() => {
     // Lê o clientId do cookie
@@ -16,11 +16,18 @@ const Dashboard = () => {
     }
   }, []);
 
+  // Função de logout
+  const handleLogout = () => {
+    // Remove o clientId do cookie
+    Cookies.remove("clientId");
+
+    // Redireciona o usuário para a página de login ou para a tela inicial
+    navigate("/login"); // Substitua "/login" pela sua rota de login
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <h1 className="text-3xl font-bold mb-6">Bem-vindo ao Painel</h1>
-      <br></br>
-        <br></br>
       <div className="space-y-4">
         <Link
           to="/statement"
@@ -46,6 +53,14 @@ const Dashboard = () => {
         >
           Saldo Total de Todas as Contas
         </Link>
+
+        {/* Botão de Logout */}
+        <button
+          onClick={handleLogout}
+          className="block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
       </div>
     </div>
   );
