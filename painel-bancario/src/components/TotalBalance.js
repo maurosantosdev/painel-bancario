@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from "react";
+import { supabase } from '../utils/supabaseClient'; // Importando o cliente Supabase
+import Cookies from "js-cookie"; // Importando o Cookies para pegar o clientId
 
 const TotalBalance = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função para buscar as contas
+  // Função para buscar as contas do banco de dados
   const fetchAccounts = async () => {
-    const token = localStorage.getItem("accessToken");
+    const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
+
+    if (!clientId) {
+      setError("Client ID não encontrado no cookie!");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const response = await fetch("https://mock-ica.aquarela.win/account", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Buscar as contas associadas ao clientId
+      const { data, error } = await supabase
+        .from("news_account") // Substitua pela tabela correta
+        .select("account_id, balance") // Seleciona o saldo de cada conta
+        .eq("client_id", clientId); // Filtra pelo clientId
 
-      if (response.ok) {
-        const data = await response.json();
-        setAccounts(data || []);
-        setLoading(false);
-      } else {
-        throw new Error("Erro ao buscar contas");
+      if (error) {
+        throw new Error(error.message);
       }
+
+      setAccounts(data || []);
+      setLoading(false);
     } catch (error) {
       setError(error.message);
       setLoading(false);

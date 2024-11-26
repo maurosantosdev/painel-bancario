@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from '../utils/supabaseClient'; // Certifique-se de que você tem o Supabase configurado corretamente
+import Cookies from "js-cookie"; // Importar a biblioteca js-cookie
 
 const Statement = () => {
   const [statements, setStatements] = useState([]); // Para armazenar extratos de todas as contas
@@ -9,9 +10,10 @@ const Statement = () => {
   useEffect(() => {
     const fetchStatements = async () => {
       const token = localStorage.getItem("accessToken");
+      const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
 
-      if (!token) {
-        setError("Token de autenticação não encontrado!");
+      if (!token || !clientId) {
+        setError("Token de autenticação ou clientId não encontrado!");
         setLoading(false);
         return;
       }
@@ -21,7 +23,7 @@ const Statement = () => {
         const { data: accounts, error: accountsError } = await supabase
           .from("news_account")
           .select("account_id, name, account_type, created_at, branch, document, number, status, balance")
-          .eq("client_id", "0978823a-f377-4c49-a3c9-dc27dc18e5a7");
+          .eq("client_id", clientId); // Utiliza o clientId do cookie
 
         if (accountsError) {
           setError("Erro ao buscar contas no banco de dados: " + accountsError.message);

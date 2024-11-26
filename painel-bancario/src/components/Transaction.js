@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from '../utils/supabaseClient'; // Certifique-se de ter o supabaseClient configurado
+import Cookies from "js-cookie"; // Importar a biblioteca js-cookie
 
 const Transaction = () => {
   const [amount, setAmount] = useState(""); // Valor da transferência
@@ -10,7 +11,12 @@ const Transaction = () => {
   useEffect(() => {
     // Função para buscar as contas do clientId específico
     const fetchAccounts = async () => {
-      const clientId = "0978823a-f377-4c49-a3c9-dc27dc18e5a7"; // Client ID fixo, pode ser dinâmico dependendo da lógica de autenticação
+      const clientId = Cookies.get("clientId"); // Recupera o clientId do cookie
+
+      if (!clientId) {
+        console.error("Client ID não encontrado no cookie!");
+        return;
+      }
 
       try {
         // Buscar as contas associadas ao clientId
